@@ -26,6 +26,11 @@ def generateWordDocument(document, tags, row, resultFolder, wordFile):
     doc = document
     for para in doc.paragraphs:
         for run in para.runs:
+            if ("{{image}}" in (run.text)):
+                run.text = run.text.replace("{{image}}", "")
+                image = easygui.fileopenbox("Choose image file:", multiple=False)
+                r = para.add_run()
+                r.add_picture(image)
             for i in range(numberOfTags):
                 if (type(row[i+1]) == pd._tslib.Timestamp):
                     run.text = run.text.replace(str(tags[i]).strip(), str(pd.to_datetime(row[i+1]).strftime("%d/%m/%Y")))
