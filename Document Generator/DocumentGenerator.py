@@ -21,14 +21,15 @@ def getFileName(filePath):
     fileName = os.path.basename(filePath)
     return fileName
 
-def generateWordDocument(document, tags, row, resultFolder, wordFile):
+def generateWordDocument(document, tags, row, resultFolder, wordFile, image):
     numberOfTags = len(tags)
     doc = document
     for para in doc.paragraphs:
         for run in para.runs:
             if ("{{image}}" in (run.text)):
                 run.text = run.text.replace("{{image}}", "")
-                image = easygui.fileopenbox("Choose image file:", multiple=False)
+                if(image == ""):
+                    image = easygui.fileopenbox("Choose image file:", multiple=False)
                 r = para.add_run()
                 r.add_picture(image)
             for i in range(numberOfTags):
@@ -39,7 +40,7 @@ def generateWordDocument(document, tags, row, resultFolder, wordFile):
                 else:
                     run.text = run.text.replace(str(tags[i]).strip(), "")
     doc.save(resultFolder + "/" + row[1] + " - " + wordFile)
-    return None
+    return image
 
 
 def getExcelFile():
@@ -52,8 +53,10 @@ def main():
     df = getExcelFile()
     tags = list(df.columns)
     folder = createFolder(getFileName(wordDocumentFilePath))
+    image = ""
     for row in df.itertuples():
-        generateWordDocument(doc, tags, row, folder, getFileName(wordDocumentFilePath))
+        doc = docx.Document(wordDocumentFilePath)
+        image = generateWordDocument(doc, tags, row, folder, getFileName(wordDocumentFilePath), image)
 
     openDonatePage()
 
